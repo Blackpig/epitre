@@ -3,6 +3,7 @@
 namespace BlackpigCreatif\Epitre\Filament\Resources;
 
 use BlackpigCreatif\Epitre\Epitre;
+use BlackpigCreatif\Epitre\EpitrePlugin;
 use BlackpigCreatif\Epitre\Filament\Resources\EmailTemplateResource\Pages\EditEmailTemplate;
 use BlackpigCreatif\Epitre\Filament\Resources\EmailTemplateResource\Pages\ListEmailTemplates;
 use BlackpigCreatif\Epitre\Models\EmailTemplate;
@@ -34,6 +35,11 @@ class EmailTemplateResource extends Resource
     protected static ?string $modelLabel = 'Email Template';
 
     protected static ?string $recordTitleAttribute = 'key';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return EpitrePlugin::get()->getNavigationGroup();
+    }
 
     public static function form(Schema $schema): Schema
     {

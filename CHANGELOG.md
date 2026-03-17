@@ -2,6 +2,11 @@
 
 All notable changes to `epitre` will be documented in this file.
 
+## 1.0.1 - 2026-03-17
+
+### Added
+- `navigationGroup()` method on `EpitrePlugin` to place the Email Templates resource inside a named navigation group (e.g. Settings)
+
 ## 1.0.0 - 2026-03-17
 
 ### Added
