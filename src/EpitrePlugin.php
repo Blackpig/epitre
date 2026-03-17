@@ -9,6 +9,20 @@ use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 
 class EpitrePlugin implements Plugin
 {
+    protected ?string $navigationGroup = null;
+
+    public function navigationGroup(?string $group): static
+    {
+        $this->navigationGroup = $group;
+
+        return $this;
+    }
+
+    public function getNavigationGroup(): ?string
+    {
+        return $this->navigationGroup;
+    }
+
     public function getId(): string
     {
         return 'epitre';
