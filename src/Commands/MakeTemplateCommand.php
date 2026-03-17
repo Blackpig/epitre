@@ -56,10 +56,26 @@ class MakeTemplateCommand extends Command
             $this->info("Blade view created at {$viewPath}");
         }
 
+        $this->ensureLayoutExists();
+
         $this->newLine();
         $this->line("Don't forget to register your template in your service provider:");
         $this->line("  Epitre::register({$className}::class);");
 
         return self::SUCCESS;
+    }
+
+    protected function ensureLayoutExists(): void
+    {
+        $layoutPath = resource_path('views/mail/layouts/epitre.blade.php');
+
+        if ($this->files->exists($layoutPath)) {
+            return;
+        }
+
+        $this->files->makeDirectory(dirname($layoutPath), 0755, true, true);
+        $this->files->copy(__DIR__ . '/../../stubs/epitre-layout.stub', $layoutPath);
+        $this->info("Mail layout created at {$layoutPath}");
+        $this->line('  Customise it to match your application\'s mail theme.');
     }
 }

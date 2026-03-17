@@ -10,6 +10,8 @@ abstract class EpitreTemplate
 
     protected string $view;
 
+    protected ?string $layout = null;
+
     /** @var array<string, string> Maps '{token}' => 'Human-readable description' */
     protected array $tokens = [];
 
@@ -29,6 +31,11 @@ abstract class EpitreTemplate
     public function getView(): string
     {
         return $this->view;
+    }
+
+    public function getLayout(): ?string
+    {
+        return $this->layout;
     }
 
     /** @return array<string, string> */

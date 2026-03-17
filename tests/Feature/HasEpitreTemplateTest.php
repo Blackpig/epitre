@@ -4,6 +4,7 @@ use BlackpigCreatif\Epitre\Epitre;
 use BlackpigCreatif\Epitre\Models\EmailTemplate;
 use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationMailable;
 use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationTemplate;
+use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationWithLayoutTemplate;
 
 beforeEach(function () {
     app()->forgetInstance(Epitre::class);
@@ -84,4 +85,57 @@ it('does not replace partial token matches', function () {
     $content = $mailable->content();
 
     expect($content->htmlString)->toBe('<p>Alice and {named}</p>');
+});
+
+// Layout
+
+it('uses the layout as a markdown view when a layout is set', function () {
+    app()->forgetInstance(Epitre::class);
+    app()->singleton(Epitre::class);
+    app(Epitre::class)->register(TestConfirmationWithLayoutTemplate::class);
+
+    EmailTemplate::factory()->create([
+        'key' => 'test.confirmation',
+        'body' => ['en' => '<p>Hello {name}</p>'],
+        'subject' => ['en' => 'Hi'],
+    ]);
+
+    $mailable = new TestConfirmationMailable('Alice', 'Hello');
+    $content = $mailable->content();
+
+    expect($content->markdown)->toBe('mail.layouts.test-layout')
+        ->and($content->htmlString)->toBeNull()
+        ->and($content->view)->toBeNull();
+});
+
+it('passes the resolved body and epitreData to the layout', function () {
+    app()->forgetInstance(Epitre::class);
+    app()->singleton(Epitre::class);
+    app(Epitre::class)->register(TestConfirmationWithLayoutTemplate::class);
+
+    EmailTemplate::factory()->create([
+        'key' => 'test.confirmation',
+        'body' => ['en' => '<p>Hello {name}</p>'],
+        'subject' => ['en' => 'Hi'],
+    ]);
+
+    $mailable = new TestConfirmationMailable('Alice', 'Hello');
+    $content = $mailable->content();
+
+    expect($content->with['body'])->toBe('<p>Hello Alice</p>')
+        ->and($content->with['name'])->toBe('Alice');
+});
+
+it('falls back to htmlString when no layout is set even if a record exists', function () {
+    EmailTemplate::factory()->create([
+        'key' => 'test.confirmation',
+        'body' => ['en' => '<p>Hello</p>'],
+        'subject' => ['en' => 'Hi'],
+    ]);
+
+    $mailable = new TestConfirmationMailable('Alice', 'Hello');
+    $content = $mailable->content();
+
+    expect($content->htmlString)->not->toBeNull()
+        ->and($content->view)->toBeNull();
 });

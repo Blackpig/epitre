@@ -147,13 +147,112 @@ The trait provides `envelope()` and `content()`. Do not implement those methods 
 
 ---
 
+## Converting an Existing Mailable
+
+If you have a Mailable already in production, the migration is straightforward.
+
+**Before:**
+
+```php
+class OrderShipped extends Mailable
+{
+    public function __construct(public Order $order) {}
+
+    public function envelope(): Envelope
+    {
+        return new Envelope(subject: 'Your order has shipped');
+    }
+
+    public function content(): Content
+    {
+        return new Content(view: 'mail.order-shipped');
+    }
+
+    public function attachments(): array
+    {
+        return [];
+    }
+}
+```
+
+**Steps:**
+
+**1.** Generate the template class, pointing at your existing Blade view:
+
+```bash
+php artisan epitre:make-template OrderShipped
+```
+
+Open the generated class and set `$view` to your existing view, define any tokens, and implement `resolve()`:
+
+```php
+class OrderShippedTemplate extends EpitreTemplate
+{
+    protected string $key = 'order-shipped';
+    protected string $label = 'Order Shipped';
+    protected string $view = 'mail.order-shipped'; // your existing view, unchanged
+
+    protected array $tokens = [
+        '{order_number}' => 'The order reference number',
+        '{customer_name}' => 'The recipient\'s name',
+    ];
+
+    public function resolve(array $data): array
+    {
+        return [
+            '{order_number}'  => $data['order_number'],
+            '{customer_name}' => $data['customer_name'],
+        ];
+    }
+}
+```
+
+**2.** Register the template in your service provider:
+
+```php
+Epitre::register(OrderShippedTemplate::class);
+```
+
+**3.** Update the Mailable. Remove `envelope()` and `content()`, add the trait and the two required members:
+
+```php
+use BlackpigCreatif\Epitre\Concerns\HasEpitreTemplate;
+
+class OrderShipped extends Mailable
+{
+    use HasEpitreTemplate;
+
+    protected string $epitreKey = 'order-shipped';
+
+    public function __construct(public Order $order) {}
+
+    public function epitreData(): array
+    {
+        return [
+            'order'          => $this->order, // still available in the Blade view
+            'order_number'   => $this->order->reference,
+            'customer_name'  => $this->order->customer->name,
+        ];
+    }
+
+    public function attachments(): array
+    {
+        return [];
+    }
+}
+```
+
+Your existing Blade view continues to work unchanged since no DB record exists yet. Editors can customise the copy through the panel at any point, and the Blade view remains the fallback if they haven't.
+
+---
+
 ## How Resolution Works
 
 When a Mailable using `HasEpitreTemplate` is sent, Epitre resolves the content in this order:
 
 **Subject:** If a DB record exists with a subject for the current locale, it is used with tokens replaced. Otherwise, the template `$label` is used as the subject.
 
-**Body:** If a DB record exists with a body for the current locale, it is rendered as an HTML string with tokens replaced. Otherwise, the Blade view is rendered via `Content(view: ...)` with `epitreData()` passed as view data.
+**Body:** If a DB record exists with a body for the current locale, it is rendered as an HTML string with tokens replaced. If a `$layout` is set on the template, the resolved HTML is passed to the layout view as `$body` instead. Otherwise the body is returned as a raw `htmlString` with no wrapping. If no DB record exists, the Blade view is rendered via `Content(view: ...)` with `epitreData()` passed as view data.
 
 This means your Blade view is always the working default. Editors only override when they want to.
 
@@ -166,16 +265,45 @@ All template classes extend `EpitreTemplate`:
 ```php
 abstract class EpitreTemplate
 {
-    protected string $key;    // unique dot-notation or kebab identifier
-    protected string $label;  // displayed in the Filament panel
-    protected string $view;   // Blade view path for the default content
-    protected array  $tokens; // '{token}' => 'Description for editors'
+    protected string  $key;     // unique dot-notation or kebab identifier
+    protected string  $label;   // displayed in the Filament panel
+    protected string  $view;    // Blade view path for the default content
+    protected ?string $layout;  // optional layout view for DB-stored content
+    protected array   $tokens;  // '{token}' => 'Description for editors'
 
     abstract public function resolve(array $data): array;
 }
 ```
 
 The `$tokens` array is informational only. It is displayed in the Filament editor sidebar so editors know what substitutions are available. The `resolve()` method maps token strings to their runtime values given the data array from `epitreData()`.
+
+### Layouts
+
+When editors save content through the Filament panel, Epitre renders it as HTML with tokens replaced. Without a layout, this is returned as a raw `htmlString` — no wrapping, no styling.
+
+If your emails use a mail layout (Laravel's `<x-mail::message>`, a custom component, or any Blade view), set `$layout` on the template to a Blade view path. Epitre will render that view with two variables available: `$body` (the resolved HTML) and everything from `epitreData()`.
+
+```php
+class OrderShippedTemplate extends EpitreTemplate
+{
+    protected string  $view   = 'mail.order-shipped';
+    protected ?string $layout = 'mail.layouts.epitre';
+    // ...
+}
+```
+
+Create the layout view:
+
+```blade
+{{-- resources/views/mail/layouts/epitre.blade.php --}}
+<x-mail::message>
+{!! $body !!}
+</x-mail::message>
+```
+
+Epitre renders layout views through Laravel's mail rendering pipeline, which is the only way `<x-mail::message>` and related components are available. This pipeline also inlines CSS from your mail theme into the output, which is necessary for email client compatibility. Your stored HTML body is output raw via `{!! $body !!}` — nothing is converted to or processed as Markdown. The pipeline name is a Laravel implementation detail you do not need to think about.
+
+The `$layout` only applies when a DB record exists. The `$view` default continues to use its own layout as normal.
 
 ---
 

@@ -8,16 +8,15 @@ use BlackpigCreatif\Epitre\Filament\Resources\EmailTemplateResource\Pages\ListEm
 use BlackpigCreatif\Epitre\Models\EmailTemplate;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\HtmlString;
 use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 
 class EmailTemplateResource extends Resource
@@ -39,9 +38,9 @@ class EmailTemplateResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Flex::make([
+            Grid::make()->columns(4)->columnSpanFull()->schema([
                 Section::make()
-                    ->columns(1)
+                    ->columnSpan(3)
                     ->schema([
                         TextInput::make('subject')
                             ->label('Subject')
@@ -66,37 +65,12 @@ class EmailTemplateResource extends Resource
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Available Tokens')
-                    ->grow(false)
-                    ->columns(1)
+                Section::make()
+                    ->columnSpan(1)
                     ->schema([
-                        Placeholder::make('tokens')
-                            ->label(false)
-                            ->content(function (EmailTemplate $record): HtmlString {
-                                if (! $record->key) {
-                                    return new HtmlString(
-                                        '<p class="text-sm text-gray-500">No tokens defined for this template.</p>'
-                                    );
-                                }
-
-                                $template = app(Epitre::class)->find($record->key);
-
-                                if (! $template || empty($template->getTokens())) {
-                                    return new HtmlString(
-                                        '<p class="text-sm text-gray-500">No tokens defined for this template.</p>'
-                                    );
-                                }
-
-                                $rows = collect($template->getTokens())
-                                    ->map(fn (string $desc, string $token): string => "<dt class='font-mono text-sm font-medium'>{$token}</dt>"
-                                        . "<dd class='text-sm text-gray-500 mt-0.5 mb-3'>{$desc}</dd>")
-                                    ->join('');
-
-                                return new HtmlString("<dl>{$rows}</dl>");
-                            })
-                            ->dehydrated(false),
+                        View::make('epitre::filament.token-list'),
                     ]),
-            ])->from('md'),
+            ]),
         ]);
     }
 

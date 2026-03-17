@@ -5,15 +5,15 @@ use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
     $files = app(Filesystem::class);
-    $classPath = app_path('BlackpigCreatif/Epitre/Templates/ContactConfirmationTemplate.php');
-    $viewPath = resource_path('views/mail/epitre/contact-confirmation.blade.php');
 
-    if ($files->exists($classPath)) {
-        $files->delete($classPath);
-    }
-
-    if ($files->exists($viewPath)) {
-        $files->delete($viewPath);
+    foreach ([
+        app_path('BlackpigCreatif/Epitre/Templates/ContactConfirmationTemplate.php'),
+        resource_path('views/mail/epitre/contact-confirmation.blade.php'),
+        resource_path('views/mail/layouts/epitre.blade.php'),
+    ] as $path) {
+        if ($files->exists($path)) {
+            $files->delete($path);
+        }
     }
 });
 
@@ -74,6 +74,33 @@ it('warns and skips the Blade view when it already exists', function () {
         ->assertSuccessful();
 
     expect(File::get($viewPath))->toBe('<p>Existing content</p>');
+});
+
+it('sets the layout path in the generated class', function () {
+    $this->artisan('epitre:make-template', ['name' => 'ContactConfirmation'])
+        ->assertSuccessful();
+
+    $contents = File::get(app_path('BlackpigCreatif/Epitre/Templates/ContactConfirmationTemplate.php'));
+
+    expect($contents)->toContain("'mail.layouts.epitre'");
+});
+
+it('creates the shared layout view when it does not exist', function () {
+    $this->artisan('epitre:make-template', ['name' => 'ContactConfirmation'])
+        ->assertSuccessful();
+
+    expect(resource_path('views/mail/layouts/epitre.blade.php'))->toBeFile();
+});
+
+it('does not overwrite the layout view when it already exists', function () {
+    $layoutPath = resource_path('views/mail/layouts/epitre.blade.php');
+    File::makeDirectory(dirname($layoutPath), 0755, true, true);
+    File::put($layoutPath, '<custom>existing layout</custom>');
+
+    $this->artisan('epitre:make-template', ['name' => 'ContactConfirmation'])
+        ->assertSuccessful();
+
+    expect(File::get($layoutPath))->toBe('<custom>existing layout</custom>');
 });
 
 it('fails when the template class already exists', function () {

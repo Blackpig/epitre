@@ -33,6 +33,10 @@ trait HasEpitreTemplate
             $resolved = $template->resolve($this->epitreData());
             $html = str_replace(array_keys($resolved), array_values($resolved), $storedBody);
 
+            if ($layout = $template->getLayout()) {
+                return new Content(markdown: $layout, with: array_merge($this->epitreData(), ['body' => $html]));
+            }
+
             return new Content(htmlString: $html);
         }
 

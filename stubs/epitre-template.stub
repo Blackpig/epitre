@@ -12,6 +12,8 @@ class {{ class }} extends EpitreTemplate
 
     protected string $view = 'mail.epitre.{{ kebab }}';
 
+    protected ?string $layout = 'mail.layouts.epitre';
+
     /** @var array<string, string> */
     protected array $tokens = [
         // '{token}' => 'Token description',
