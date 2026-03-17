@@ -1,11 +1,10 @@
 <?php
 
-namespace VendorName\Skeleton;
+namespace BlackpigCreatif\Epitre;
 
-use Filament\Support\Assets\AlpineComponent;
+use BlackpigCreatif\Epitre\Commands\MakeTemplateCommand;
+use BlackpigCreatif\Epitre\Testing\TestsEpitre;
 use Filament\Support\Assets\Asset;
-use Filament\Support\Assets\Css;
-use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Filesystem\Filesystem;
@@ -13,22 +12,15 @@ use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use VendorName\Skeleton\Commands\SkeletonCommand;
-use VendorName\Skeleton\Testing\TestsSkeleton;
 
-class SkeletonServiceProvider extends PackageServiceProvider
+class EpitreServiceProvider extends PackageServiceProvider
 {
-    public static string $name = 'skeleton';
+    public static string $name = 'epitre';
 
-    public static string $viewNamespace = 'skeleton';
+    public static string $viewNamespace = 'epitre';
 
     public function configurePackage(Package $package): void
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
         $package->name(static::$name)
             ->hasCommands($this->getCommands())
             ->hasInstallCommand(function (InstallCommand $command) {
@@ -36,7 +28,7 @@ class SkeletonServiceProvider extends PackageServiceProvider
                     ->publishConfigFile()
                     ->publishMigrations()
                     ->askToRunMigrations()
-                    ->askToStarRepoOnGitHub(':vendor_slug/:package_slug');
+                    ->askToStarRepoOnGitHub('blackpigcreatif/epitre');
             });
 
         $configFileName = $package->shortName();
@@ -58,11 +50,13 @@ class SkeletonServiceProvider extends PackageServiceProvider
         }
     }
 
-    public function packageRegistered(): void {}
+    public function packageRegistered(): void
+    {
+        $this->app->singleton(Epitre::class);
+    }
 
     public function packageBooted(): void
     {
-        // Asset Registration
         FilamentAsset::register(
             $this->getAssets(),
             $this->getAssetPackageName()
@@ -73,80 +67,55 @@ class SkeletonServiceProvider extends PackageServiceProvider
             $this->getAssetPackageName()
         );
 
-        // Icon Registration
         FilamentIcon::register($this->getIcons());
 
-        // Handle Stubs
         if (app()->runningInConsole()) {
             foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
                 $this->publishes([
-                    $file->getRealPath() => base_path("stubs/skeleton/{$file->getFilename()}"),
-                ], 'skeleton-stubs');
+                    $file->getRealPath() => base_path("stubs/epitre/{$file->getFilename()}"),
+                ], 'epitre-stubs');
             }
         }
 
-        // Testing
-        Testable::mixin(new TestsSkeleton);
+        Testable::mixin(new TestsEpitre);
     }
 
     protected function getAssetPackageName(): ?string
     {
-        return ':vendor_slug/:package_slug';
+        return 'blackpigcreatif/epitre';
     }
 
-    /**
-     * @return array<Asset>
-     */
+    /** @return array<Asset> */
     protected function getAssets(): array
     {
-        return [
-            // AlpineComponent::make('skeleton', __DIR__ . '/../resources/dist/components/skeleton.js'),
-            // Css::make('skeleton-styles', __DIR__ . '/../resources/dist/skeleton.css'),
-            // Js::make('skeleton-scripts', __DIR__ . '/../resources/dist/skeleton.js'),
-        ];
+        return [];
     }
 
-    /**
-     * @return array<class-string>
-     */
+    /** @return array<class-string> */
     protected function getCommands(): array
     {
         return [
-            SkeletonCommand::class,
+            MakeTemplateCommand::class,
         ];
     }
 
-    /**
-     * @return array<string>
-     */
+    /** @return array<string> */
     protected function getIcons(): array
     {
         return [];
     }
 
-    /**
-     * @return array<string>
-     */
-    protected function getRoutes(): array
-    {
-        return [];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     protected function getScriptData(): array
     {
         return [];
     }
 
-    /**
-     * @return array<string>
-     */
+    /** @return array<string> */
     protected function getMigrations(): array
     {
         return [
-            'create_skeleton_table',
+            'create_epitre_email_templates_table',
         ];
     }
 }

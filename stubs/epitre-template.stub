@@ -1,0 +1,27 @@
+<?php
+
+namespace App\BlackpigCreatif\Epitre\Templates;
+
+use BlackpigCreatif\Epitre\Support\EpitreTemplate;
+
+class {{ class }} extends EpitreTemplate
+{
+    protected string $key = '{{ key }}';
+
+    protected string $label = '{{ label }}';
+
+    protected string $view = 'mail.epitre.{{ kebab }}';
+
+    /** @var array<string, string> */
+    protected array $tokens = [
+        // '{token}' => 'Token description',
+    ];
+
+    /** @return array<string, string> */
+    public function resolve(array $data): array
+    {
+        return [
+            // '{token}' => $data['key'],
+        ];
+    }
+}

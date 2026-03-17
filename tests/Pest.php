@@ -1,5 +1,7 @@
 <?php
 
-use VendorName\Skeleton\Tests\TestCase;
+use BlackpigCreatif\Epitre\Tests\FilamentTestCase;
+use BlackpigCreatif\Epitre\Tests\TestCase;
 
-uses(TestCase::class)->in(__DIR__);
+uses(TestCase::class)->in('Unit', 'Feature/HasEpitreTemplateTest.php', 'Feature/MakeTemplateCommandTest.php');
+uses(FilamentTestCase::class)->in('Feature/Filament');

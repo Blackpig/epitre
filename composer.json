@@ -1,36 +1,37 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "blackpig-creatif/epitre",
+    "description": "A filamentPHP plugin to manage email templates for Mailables",
     "keywords": [
-        ":vendor_name",
+        "BlackpigCreatif",
         "laravel",
         "filamentphp",
         "filament",
         "filament-plugin",
-        ":package_slug"
+        "epitre"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/blackpig/epitre",
     "support": {
-        "issues": "https://github.com/:vendor_slug/:package_slug/issues",
-        "source": "https://github.com/:vendor_slug/:package_slug"
+        "issues": "https://github.com/blackpig/epitre/issues",
+        "source": "https://github.com/blackpig/epitre"
     },
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Blackpig",
+            "email": "stuart@blackpig.eu",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.2|^8.3|^8.4",
         "filament/filament": "^5.0",
-        "filament/forms": "^5.0",
-        "filament/tables": "^5.0",
+        "lara-zeus/spatie-translatable": "^2.0",
         "spatie/laravel-package-tools": "^1.15.0"
     },
     "require-dev": {
+        "filament/blueprint": "^2.1",
         "larastan/larastan": "^3.0",
+        "laravel/boost": "^2.3",
         "laravel/pint": "^1.0",
         "nunomaduro/collision": "^8.0",
         "orchestra/testbench": "^9.0|^10.0",
@@ -43,13 +44,15 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "BlackpigCreatif\\Epitre\\": "src/",
+            "BlackpigCreatif\\Epitre\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/"
+            "BlackpigCreatif\\Epitre\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/"
         }
     },
     "scripts": {
@@ -64,10 +67,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "BlackpigCreatif\\Epitre\\EpitreServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "Epitre": "BlackpigCreatif\\Epitre\\Facades\\Epitre"
             }
         }
     },
@@ -80,5 +83,10 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [{
+        "name": "filament",
+        "type": "composer",
+        "url": "https://packages.filamentphp.com/composer"
+    }]
 }
