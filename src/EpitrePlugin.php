@@ -11,6 +11,8 @@ class EpitrePlugin implements Plugin
 {
     protected ?string $navigationGroup = null;
 
+    protected ?string $resourceClass = EmailTemplateResource::class;
+
     public function navigationGroup(?string $group): static
     {
         $this->navigationGroup = $group;
@@ -38,7 +40,7 @@ class EpitrePlugin implements Plugin
         }
 
         $panel->resources([
-            EmailTemplateResource::class,
+            $this->resourceClass,
         ]);
     }
 
@@ -73,5 +75,12 @@ class EpitrePlugin implements Plugin
         $plugin = filament(app(static::class)->getId());
 
         return $plugin;
+    }
+
+    public function resource(string $resourceClass): static
+    {
+        $this->resourceClass = $resourceClass;
+
+        return $this;
     }
 }

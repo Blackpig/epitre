@@ -13,17 +13,19 @@ class Epitre
     /**
      * Register a template class with the registry.
      *
-     * @param  class-string<EpitreTemplate>  $class
+     * @param  class-string<EpitreTemplate>  ...$classes
      *
      * @throws InvalidArgumentException
      */
-    public function register(string $class): void
+    public function register(string ...$classes): void
     {
-        if (! is_subclass_of($class, EpitreTemplate::class)) {
-            throw new InvalidArgumentException("{$class} must extend EpitreTemplate.");
+        foreach ($classes as $class) {
+            if (! is_subclass_of($class, EpitreTemplate::class)) {
+                throw new InvalidArgumentException("{$class} must extend EpitreTemplate.");
+            }
+    
+            $this->templates[] = $class;
         }
-
-        $this->templates[] = $class;
     }
 
     /** @return array<int, class-string<EpitreTemplate>> */
