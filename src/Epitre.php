@@ -23,7 +23,7 @@ class Epitre
             if (! is_subclass_of($class, EpitreTemplate::class)) {
                 throw new InvalidArgumentException("{$class} must extend EpitreTemplate.");
             }
-    
+
             $this->templates[] = $class;
         }
     }
