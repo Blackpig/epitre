@@ -29,8 +29,7 @@
         "spatie/laravel-package-tools": "^1.15.0"
     },
     "require-dev": {
-        "filament/blueprint": "^2.1",
-        "larastan/larastan": "^3.0",
+"larastan/larastan": "^3.0",
         "laravel/boost": "^2.3",
         "laravel/pint": "^1.0",
         "nunomaduro/collision": "^8.0",
@@ -84,9 +83,5 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "repositories": [{
-        "name": "filament",
-        "type": "composer",
-        "url": "https://packages.filamentphp.com/composer"
-    }]
+    "repositories": []
 }
