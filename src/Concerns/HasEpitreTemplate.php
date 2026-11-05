@@ -40,6 +40,10 @@ trait HasEpitreTemplate
             return new Content(htmlString: $html);
         }
 
+        if ($template->isMarkdown()) {
+            return new Content(markdown: $template->getView(), with: $this->epitreData());
+        }
+
         return new Content(view: $template->getView(), with: $this->epitreData());
     }
 

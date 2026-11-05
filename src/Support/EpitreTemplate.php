@@ -12,6 +12,9 @@ abstract class EpitreTemplate
 
     protected ?string $layout = null;
 
+    /** Render $view through Laravel's mail Markdown pipeline (needed for <x-mail::message> views). */
+    protected bool $markdown = false;
+
     /** @var array<string, string> Maps '{token}' => 'Human-readable description' */
     protected array $tokens = [];
 
@@ -36,6 +39,11 @@ abstract class EpitreTemplate
     public function getLayout(): ?string
     {
         return $this->layout;
+    }
+
+    public function isMarkdown(): bool
+    {
+        return $this->markdown;
     }
 
     /** @return array<string, string> */
