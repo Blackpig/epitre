@@ -5,6 +5,7 @@ use BlackpigCreatif\Epitre\Models\EmailTemplate;
 use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationMailable;
 use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationMarkdownTemplate;
 use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationTemplate;
+use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationTranslatedSubjectTemplate;
 use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationWithLayoutTemplate;
 use Illuminate\Support\Facades\View;
 
@@ -165,4 +166,32 @@ it('renders a mail Markdown view when no DB record exists', function () {
 
     expect($html)->toContain('Hello Alice')
         ->toContain('Thanks for writing');
+});
+
+it('uses the template default subject when no stored subject exists for the locale', function () {
+    app()->forgetInstance(Epitre::class);
+    app()->singleton(Epitre::class);
+    app(Epitre::class)->register(TestConfirmationTranslatedSubjectTemplate::class);
+
+    EmailTemplate::factory()->create([
+        'key' => 'test.confirmation',
+        'subject' => ['en' => 'Stored English subject'],
+    ]);
+
+    app()->setLocale('fr');
+
+    expect((new TestConfirmationMailable('Alice', 'Hello'))->envelope()->subject)->toBe('Merci');
+});
+
+it('prefers a stored subject over the template default subject', function () {
+    app()->forgetInstance(Epitre::class);
+    app()->singleton(Epitre::class);
+    app(Epitre::class)->register(TestConfirmationTranslatedSubjectTemplate::class);
+
+    EmailTemplate::factory()->create([
+        'key' => 'test.confirmation',
+        'subject' => ['en' => 'Stored English subject'],
+    ]);
+
+    expect((new TestConfirmationMailable('Alice', 'Hello'))->envelope()->subject)->toBe('Stored English subject');
 });

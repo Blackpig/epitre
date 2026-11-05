@@ -252,7 +252,14 @@ Your existing Blade view continues to work unchanged since no DB record exists y
 
 When a Mailable using `HasEpitreTemplate` is sent, Epitre resolves the content in this order:
 
-**Subject:** If a DB record exists with a subject for the current locale, it is used with tokens replaced. Otherwise, the template `$label` is used as the subject.
+**Subject:** If a DB record exists with a subject for the current locale, it is used with tokens replaced. Otherwise the template's `defaultSubject()` is used, which returns the `$label` unless you override it. Override it to keep a translated subject for locales editors haven't filled in (the mailable's locale is active when it runs):
+
+```php
+public function defaultSubject(): string
+{
+    return __('mail.order_shipped.subject');
+}
+```
 
 **Body:** If a DB record exists with a body for the current locale, it is rendered as an HTML string with tokens replaced. If a `$layout` is set on the template, the resolved HTML is passed to the layout view as `$body` instead. Otherwise the body is returned as a raw `htmlString` with no wrapping. If no DB record exists, the Blade view is rendered via `Content(view: ...)` (or `Content(markdown: ...)` when the template sets `$markdown = true`) with `epitreData()` passed as view data.
 

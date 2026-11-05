@@ -31,6 +31,15 @@ abstract class EpitreTemplate
         return $this->label;
     }
 
+    /**
+     * Subject used when no stored subject exists for the current locale. Defaults to the
+     * label; override to return a translated string (the mailable's locale is active).
+     */
+    public function defaultSubject(): string
+    {
+        return $this->getLabel();
+    }
+
     public function getView(): string
     {
         return $this->view;
