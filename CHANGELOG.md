@@ -2,6 +2,12 @@
 
 All notable changes to `epitre` will be documented in this file.
 
+## v2.1.0 - 2026-11-05
+
+### Added
+
+- `protected bool $markdown` on `EpitreTemplate`. When true, the default view is rendered with `Content(markdown: ...)` when no stored body exists for the current locale. Mailables migrated from `make:mail --markdown` (views built on `<x-mail::message>`) previously failed to render their default view with "No hint path defined for [mail]".
+
 ## 1.0.1 - 2026-03-17
 
 ### Added

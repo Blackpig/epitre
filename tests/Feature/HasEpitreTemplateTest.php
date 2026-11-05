@@ -3,8 +3,10 @@
 use BlackpigCreatif\Epitre\Epitre;
 use BlackpigCreatif\Epitre\Models\EmailTemplate;
 use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationMailable;
+use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationMarkdownTemplate;
 use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationTemplate;
 use BlackpigCreatif\Epitre\Tests\Fixtures\TestConfirmationWithLayoutTemplate;
+use Illuminate\Support\Facades\View;
 
 beforeEach(function () {
     app()->forgetInstance(Epitre::class);
@@ -138,4 +140,29 @@ it('falls back to htmlString when no layout is set even if a record exists', fun
 
     expect($content->htmlString)->not->toBeNull()
         ->and($content->view)->toBeNull();
+});
+
+it('falls back to the view as Markdown when the template is marked markdown', function () {
+    app()->forgetInstance(Epitre::class);
+    app()->singleton(Epitre::class);
+    app(Epitre::class)->register(TestConfirmationMarkdownTemplate::class);
+
+    $content = (new TestConfirmationMailable('Alice', 'Hello'))->content();
+
+    expect($content->markdown)->toBe('mail.epitre.test-confirmation-markdown')
+        ->and($content->view)->toBeNull()
+        ->and($content->with)->toBe(['name' => 'Alice', 'msg' => 'Hello']);
+});
+
+it('renders a mail Markdown view when no DB record exists', function () {
+    View::addLocation(dirname(__DIR__) . '/views');
+
+    app()->forgetInstance(Epitre::class);
+    app()->singleton(Epitre::class);
+    app(Epitre::class)->register(TestConfirmationMarkdownTemplate::class);
+
+    $html = (new TestConfirmationMailable('Alice', 'Thanks for writing'))->render();
+
+    expect($html)->toContain('Hello Alice')
+        ->toContain('Thanks for writing');
 });
