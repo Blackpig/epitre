@@ -57,6 +57,6 @@ trait HasEpitreTemplate
             return str_replace(array_keys($resolved), array_values($resolved), $storedSubject);
         }
 
-        return $template?->getLabel() ?? $this->epitreKey;
+        return $template?->defaultSubject() ?? $this->epitreKey;
     }
 }

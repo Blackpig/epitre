@@ -2,6 +2,12 @@
 
 All notable changes to `epitre` will be documented in this file.
 
+## v2.2.0 - 2026-11-05
+
+### Added
+
+- `EpitreTemplate::defaultSubject()`, used when no stored subject exists for the current locale. Defaults to the label as before; override it to return a translated subject. Previously a mailable migrated to Epitre lost its translated subject in every locale without a stored one.
+
 ## v2.1.0 - 2026-11-05
 
 ### Added
